@@ -180,6 +180,25 @@ runs:
         echo "vs_install_dir=$VS_INSTALL_DIR" >> $GITHUB_OUTPUT
         echo "vs_vsdevcmd=$VS_VSDEVCMD" >> $GITHUB_OUTPUT
 
+    - name: MacOS Brew workaround
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          rm -f /usr/local/bin/2to3
+          rm -f /usr/local/bin/idle3
+          rm -f /usr/local/bin/pydoc3
+          rm -f /usr/local/bin/python3
+          rm -f /usr/local/bin/python3-config
+          rm -f /usr/local/bin/2to3-3.11
+          rm -f /usr/local/bin/idle3.11
+          rm -f /usr/local/bin/pydoc3.11
+          rm -f /usr/local/bin/python3.11
+          rm -f /usr/local/bin/python3.11-config
+          rm -f /usr/local/bin/python3.11-config
+          rm -f /usr/local/bin/go
+          rm -f /usr/local/bin/gofmt
+        fi
+
     - name: Install build tools
       shell: bash
       run: |
