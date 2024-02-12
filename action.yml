@@ -160,7 +160,7 @@ runs:
           SUDO=''
           QT_INSTALL_DIR="C:/Qt"
           EIGEN_INSTALL_DIR="C:/eigen"
-          BOOST_VERSION=1.69.0
+          BOOST_VERSION=1.74.0
           BOOST_INSTALL_DIR="C:/boost"
 
           # vsdevcmd.bat is here: 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/Tools/vsdevcmd.bat'
