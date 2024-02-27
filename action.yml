@@ -191,6 +191,9 @@ runs:
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
           rm /usr/local/bin/2to3
           rm /usr/local/bin/2to3-3.11
+          rm /usr/local/bin/2to3-3.12
+          rm /usr/local/bin/idle3.11
+          
           brew update --force && brew upgrade --force
           brew install ccache ninja
           brew install glew
