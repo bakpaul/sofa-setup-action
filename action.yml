@@ -189,14 +189,7 @@ runs:
           sudo apt-get -qq install freeglut3-dev libopengl0
           sudo apt-get -qq install libpng-dev libjpeg-dev libtiff-dev libglew-dev zlib1g-dev
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-#          rm /usr/local/bin/2to3
-#          rm /usr/local/bin/2to3-3.11
-#          rm /usr/local/bin/2to3-3.12
-#          rm /usr/local/bin/idle3
-#          rm /usr/local/bin/idle3.11
-#          rm /usr/local/bin/idle3.12
-#
-#          brew update --force && brew upgrade --force
+          brew update
           brew install ccache ninja
           brew install glew
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
