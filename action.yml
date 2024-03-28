@@ -181,7 +181,7 @@ runs:
         echo "vs_vsdevcmd=$VS_VSDEVCMD" >> $GITHUB_OUTPUT
 
         echo "------ GITHUB_REMOTE ------"
-        echo "${{ github.remote }}"
+        echo "${{ github.repository }}"
         echo "------ GITHUB_REMOTE ------"
 
 
