@@ -180,6 +180,8 @@ runs:
         echo "vs_install_dir=$VS_INSTALL_DIR" >> $GITHUB_OUTPUT
         echo "vs_vsdevcmd=$VS_VSDEVCMD" >> $GITHUB_OUTPUT
 
+        echo "${{ github.remote }}"
+
     - name: (Mac) Workaround for homebrew # https://github.com/rancher-sandbox/lima-and-qemu/pull/20
       shell: bash
       if: runner.os == 'macOS'
