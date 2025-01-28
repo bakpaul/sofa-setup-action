@@ -236,7 +236,10 @@ runs:
         echo "PYTHONIOENCODING=UTF-8" | tee -a $GITHUB_ENV
 
         # Set PYTHON_ROOT and PYTHON_EXE
-        PYTHON_ROOT="$(find $RUNNER_TOOL_CACHE -maxdepth 3 -type d -path '**/Python/${{ steps.install-python.outputs.python-version }}*/x64')"
+
+        PYTHON_ROOT="$(find $RUNNER_TOOL_CACHE -maxdepth 3 -type d -path '**/Python/${{ steps.install-python.outputs.python-version }}*/*64')"
+
+
         PYTHON_ROOT="$(cd $PYTHON_ROOT && pwd -W 2>/dev/null || pwd)"
         if [ -e "$PYTHON_ROOT/python.exe" ]; then
           PYTHON_EXE="$PYTHON_ROOT/python.exe"
