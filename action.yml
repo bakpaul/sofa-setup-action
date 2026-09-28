@@ -369,8 +369,9 @@ runs:
       id: clone_ci
       uses: actions/checkout@v7
       with:
-          repository: sofa-framework/ci
+          repository: bakpaul/ci
           path: ci
+          ref: 26_09_update_get_sofa_nightly_script
 
     - name: Search for SOFA ${{ inputs.sofa_version }} on GitHub
       id: get_sofa_from_github
