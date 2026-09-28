@@ -272,17 +272,17 @@ runs:
       shell: bash
       run: |
         if [[ "${{ inputs.numpy_version }}" == "latest" ]]; then
-            $PYTHON_EXE -m pip install numpy
+            $PYTHON_EXE -m pip install numpy requests
         else
-            $PYTHON_EXE -m pip install numpy==${{ inputs.numpy_version }}
+            $PYTHON_EXE -m pip install numpy==${{ inputs.numpy_version }} requests
         fi
         if [[ "${{ inputs.scipy_version }}" == "latest" ]]; then
-            $PYTHON_EXE -m pip install scipy
+            $PYTHON_EXE -m pip install scipy requests
         else
-            $PYTHON_EXE -m pip install scipy==${{ inputs.scipy_version }}
+            $PYTHON_EXE -m pip install scipy==${{ inputs.scipy_version }} requests
         fi
         echo '---- pip show numpy scipy ----'
-        $PYTHON_EXE -m pip show numpy scipy
+        $PYTHON_EXE -m pip show numpy scipy requests
         echo '------------------------------'
 
     - name: Setup cache for pybind11 files
