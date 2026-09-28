@@ -425,7 +425,7 @@ runs:
 
           else
             ARTIFACT_OS=${RUNNER_OS,,}
-            if [[ "$ARTIFACT_OS" == "Linux" ]]; then
+            if [[ "$ARTIFACT_OS" == "linux" ]]; then
                 ARTIFACT_OS=ubuntu
             fi
 
