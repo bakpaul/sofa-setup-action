@@ -26,9 +26,6 @@ inputs:
   pybind11_version:
     description: 'pybind11 version to install'
     default: '2.12.0'
-  qt_version:
-    description: 'Qt version to install'
-    default: '5.12.12'
   eigen_version:
     description: 'Eigen version to install'
     default: '3.4.0'
@@ -304,43 +301,6 @@ runs:
           pybind11_DIR="$(pybind11-config-${{ inputs.python_version }} --cmakedir)"
           echo "pybind11_DIR=$pybind11_DIR" | tee -a $GITHUB_ENV
         fi
-        
-
-    - name: Setup cache for Qt files
-      if: inputs.sofa_scope != 'minimal'
-      uses: actions/cache@v4
-      id: qt_cache
-      with:
-        path: ${{ env.QT_INSTALL_DIR }}
-        key: qt-${{ inputs.qt_version }}_${{ runner.os }}_for-SOFA-${{ inputs.sofa_version }}_${{ hashFiles('**/*.yml') }}
-
-    - name: Install Qt
-      if: inputs.sofa_scope != 'minimal'
-      shell: bash
-      run: |
-        if [[ "$RUNNER_OS" == "Linux" ]]; then
-          qt_os="linux"
-          qt_compiler="gcc_64"
-        elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          qt_os="mac"
-          qt_compiler="clang_64"
-        elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          qt_os="windows"
-          qt_compiler="win64_msvc2017_64"
-        fi
-        if ! ls -a "$QT_INSTALL_DIR"/* >/dev/null 2>&1; then
-          # directory does not exist or is empty
-          $PYTHON_EXE -m pip install aqtinstall
-          $PYTHON_EXE -m aqt install-qt   --outputdir $QT_INSTALL_DIR $qt_os desktop ${{ inputs.qt_version }} $qt_compiler -m qtcharts qtwebengine
-          $PYTHON_EXE -m aqt install-tool --outputdir $QT_INSTALL_DIR $qt_os desktop tools_ifw
-        fi
-        Qt5_ROOT="$QT_INSTALL_DIR/${{ inputs.qt_version }}/${qt_compiler#*win64_}"
-        Qt5_DIR="$Qt5_ROOT/lib/cmake/Qt5"
-        QTIFWDIR="$(ls -d $QT_INSTALL_DIR/Tools/QtInstallerFramework/*/ | head -n 1 | sed 's://$::g')"
-        echo "Qt5_ROOT=$Qt5_ROOT" | tee -a $GITHUB_ENV
-        echo "Qt5_DIR=$Qt5_DIR" | tee -a $GITHUB_ENV
-        echo "QTIFWDIR=$QTIFWDIR" | tee -a $GITHUB_ENV
-        echo "$Qt5_ROOT" >> $GITHUB_PATH
 
     - name: Setup cache for Boost files
       uses: actions/cache@v4
@@ -405,6 +365,13 @@ runs:
         echo "Eigen3_ROOT=$EIGEN_INSTALL_DIR" | tee -a $GITHUB_ENV
         echo "$EIGEN_INSTALL_DIR" >> $GITHUB_PATH
 
+    - name: Clone ci scripts
+      id: clone_ci
+      uses: actions/checkout@v7
+      with:
+          repository: sofa-framework/ci
+          path: ci
+
     - name: Search for SOFA ${{ inputs.sofa_version }} on GitHub
       id: get_sofa_from_github
       uses: cardinalby/git-get-release-action@v1
@@ -422,7 +389,7 @@ runs:
       run: |
         if ! ls -a "${{ inputs.sofa_root }}"/* >/dev/null 2>&1; then # cache check
           # directory does not exist or is empty
-        
+
           if [ -n "${{ steps.get_sofa_from_github.outputs.id }}" ]; then
             # Release was found on GitHub
             SOFA_OS_GITHUB="$RUNNER_OS"
@@ -444,38 +411,20 @@ runs:
             unzip -qq "${{ runner.temp }}"/sofa_tmp/zip/sofa.zip -d "${{ runner.temp }}/sofa_tmp/binaries"
             $SUDO mkdir -p "${{ inputs.sofa_root }}"
             $SUDO mv "${{ runner.temp }}"/sofa_tmp/binaries/SOFA_*/* "${{ inputs.sofa_root }}"
-            
-            echo "sofa_version=${{ steps.get_sofa_from_github.outputs.tag_name }}" >> $GITHUB_OUTPUT            
-            
+
+            echo "sofa_version=${{ steps.get_sofa_from_github.outputs.tag_name }}" >> $GITHUB_OUTPUT
+
           else
             # Release was not found on GitHub, try to get it from Jenkins
-            SOFA_OS_JENKINS="$RUNNER_OS"
-            if [[ "$SOFA_OS_JENKINS" == "Linux" ]]; then
-              SOFA_OS_JENKINS="Linux"
-            elif [[ "$SOFA_OS_JENKINS" == "Windows" ]]; then
-              SOFA_OS_JENKINS="Windows"
-            elif [[ "$SOFA_OS_JENKINS" == "macOS" ]]; then
-              SOFA_OS_JENKINS="MacOS"
-            fi
-            mkdir -p "${{ runner.temp }}/sofa_tmp/zip" "${{ runner.temp }}/sofa_tmp/binaries"
-            urlPrefix="https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_BRANCH=${{ inputs.sofa_version }},CI_SCOPE=${{ inputs.sofa_scope }}"
-            urlSuffix="artifact/${SOFA_OS_JENKINS}/*zip*/${SOFA_OS_JENKINS}.zip"
-            url="$urlPrefix/lastBuild/$urlSuffix"
-            if ! curl --output /dev/null --silent --head --fail "$url"; then
-              echo 'There is no artifact for "lastBuild". Falling back on "lastSuccessfulBuild".'
-              url="$urlPrefix/lastSuccessfulBuild/$urlSuffix"
-            fi
-            echo "Getting SOFA from $url"
-            curl --http1.0 --output "${{ runner.temp }}/sofa_tmp/${SOFA_OS_JENKINS}.zip" -L $url
-            unzip -qq "${{ runner.temp }}"/sofa_tmp/${SOFA_OS_JENKINS}.zip -d "${{ runner.temp }}/sofa_tmp/zip"
-            unzip -qq "${{ runner.temp }}"/sofa_tmp/zip/${SOFA_OS_JENKINS}/SOFA_*.zip -d "${{ runner.temp }}/sofa_tmp/binaries"
+            python3 $WORKSPACE/ci/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/binaries/" --os ${RUNNER_OS,,} -n 1 -b ${{ inputs.sofa_version }} -e push
+
             $SUDO mkdir -p "${{ inputs.sofa_root }}"
             $SUDO mv "${{ runner.temp }}"/sofa_tmp/binaries/SOFA_*/* "${{ inputs.sofa_root }}"
-        
-            echo "sofa_version=${{ inputs.sofa_version }}" >> $GITHUB_OUTPUT            
+
+            echo "sofa_version=${{ inputs.sofa_version }}" >> $GITHUB_OUTPUT
 
           fi
-        
+
         fi # cache check
 
     - name: Log SOFA install directory
