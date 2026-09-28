@@ -424,10 +424,15 @@ runs:
             echo "sofa_version=${{ steps.get_sofa_from_github.outputs.tag_name }}" >> $GITHUB_OUTPUT
 
           else
-            # Release was not found on GitHub, try to get it from Jenkins
-            python3 $WORKSPACE_CI_PATH/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/" --os ${RUNNER_OS,,} -n 1 -b ${{ inputs.sofa_version }} -e push
+            ARTIFACT_OS=${RUNNER_OS,,}
+            if [[ "$ARTIFACT_OS" == "Linux" ]]; then
+                ARTIFACT_OS=ubuntu
+            fi
 
-            unzip -qq ${{ runner.temp }}/sofa_tmp/latest/${RUNNER_OS,,}*/SOFA_* -d "${{ runner.temp }}/sofa_tmp/binaries"
+            # Release was not found on GitHub, try to get it from Jenkins
+            python3 $WORKSPACE_CI_PATH/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/" --os ${ARTIFACT_OS} -n 1 -b ${{ inputs.sofa_version }} -e push
+
+            unzip -qq ${{ runner.temp }}/sofa_tmp/latest/${ARTIFACT_OS}*/SOFA_* -d "${{ runner.temp }}/sofa_tmp/binaries"
             $SUDO mkdir -p "${{ inputs.sofa_root }}"
             $SUDO mv "${{ runner.temp }}"/sofa_tmp/binaries/SOFA_*/* "${{ inputs.sofa_root }}"
 
