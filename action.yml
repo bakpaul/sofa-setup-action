@@ -60,6 +60,9 @@ outputs:
   vs_vsdevcmd:
     description: "Command to init VS environment"
     value: ${{ steps.set-env-vars.outputs.vs_vsdevcmd }}
+  workspace_ci_path:
+    description: "Directory containing the ci scripts"
+    value: ${{ steps.set-env-vars.outputs.workspace_ci_path }}
   workspace_src_path:
     description: "Directory to checkout your sources after calling this action"
     value: ${{ steps.set-env-vars.outputs.workspace_src_path }}
@@ -387,6 +390,11 @@ runs:
       id: get-sofa-binaries
       shell: bash
       run: |
+        WORKSPACE_CI_PATH="$(cd $GITHUB_WORKSPACE/ci      && pwd -W 2>/dev/null || pwd)"
+        echo "WORKSPACE_CI_PATH=$WORKSPACE_CI_PATH" | tee -a $GITHUB_ENV
+        echo "workspace_ci_path=$WORKSPACE_CI_PATH" >> $GITHUB_OUTPUT
+
+
         if ! ls -a "${{ inputs.sofa_root }}"/* >/dev/null 2>&1; then # cache check
           # directory does not exist or is empty
 
@@ -416,7 +424,7 @@ runs:
 
           else
             # Release was not found on GitHub, try to get it from Jenkins
-            python3 $WORKSPACE/ci/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/" --os ${RUNNER_OS,,} -n 1 -b ${{ inputs.sofa_version }} -e push
+            python3 $WORKSPACE_CI_PATH/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/" --os ${RUNNER_OS,,} -n 1 -b ${{ inputs.sofa_version }} -e push
 
             unzip -qq ${{ runner.temp }}/sofa_tmp/latest/${RUNNER_OS,,}*/SOFA_* -d "${{ runner.temp }}/sofa_tmp/binaries"
             $SUDO mkdir -p "${{ inputs.sofa_root }}"
