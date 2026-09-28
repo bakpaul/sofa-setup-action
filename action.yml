@@ -416,8 +416,9 @@ runs:
 
           else
             # Release was not found on GitHub, try to get it from Jenkins
-            python3 $WORKSPACE/ci/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/binaries/" --os ${RUNNER_OS,,} -n 1 -b ${{ inputs.sofa_version }} -e push
+            python3 $WORKSPACE/ci/scripts/getLatestSOFANightly.py ${{ github.token }} "${{ runner.temp }}/sofa_tmp/" --os ${RUNNER_OS,,} -n 1 -b ${{ inputs.sofa_version }} -e push
 
+            unzip -qq ${{ runner.temp }}/sofa_tmp/latest/${RUNNER_OS,,}*/SOFA_* -d "${{ runner.temp }}/sofa_tmp/binaries"
             $SUDO mkdir -p "${{ inputs.sofa_root }}"
             $SUDO mv "${{ runner.temp }}"/sofa_tmp/binaries/SOFA_*/* "${{ inputs.sofa_root }}"
 
