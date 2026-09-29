@@ -374,6 +374,7 @@ runs:
       with:
           repository: sofa-framework/ci
           path: ci
+          ref: master
 
     - name: Search for SOFA ${{ inputs.sofa_version }} on GitHub
       id: get_sofa_from_github
