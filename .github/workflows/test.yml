@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, macos-14, windows-2022]
-        sofa_branch: [test_nightly]
+        sofa_branch: [master, v24.12]
 
     steps:
       - name: Check out repository
@@ -46,7 +46,7 @@ jobs:
           echo "----------------------------"
           cat '${{ runner.temp }}'/_runner_file_commands/add_path*
           echo "----------------------------"
-
+          
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             echo "----------------------------"
             cmd //c 'echo EIGEN3_ROOT=%EIGEN3_ROOT%'
