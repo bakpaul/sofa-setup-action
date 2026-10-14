@@ -25,7 +25,7 @@ inputs:
     default: 'latest'
   pybind11_version:
     description: 'pybind11 version to install'
-    default: '2.12.0'
+    default: '3.0.1'
   eigen_version:
     description: 'Eigen version to install'
     default: '3.4.0'
@@ -148,7 +148,6 @@ runs:
         echo "CCACHE_DIR=$GITHUB_WORKSPACE/.ccache" | tee -a $GITHUB_ENV
 
         # TODO: find a better way to handle dependency versions
-        QT_INSTALL_DIR="$HOME/Qt"
         EIGEN_INSTALL_DIR="$(cd "$HOME" && pwd -W 2>/dev/null || pwd)/eigen"
         BOOST_INSTALL_DIR="/tmp/deps_cache_is_for_windows_only"
         PYBIND11_INSTALL_DIR="${{ runner.temp }}/pybind11"
@@ -159,9 +158,8 @@ runs:
           BOOST_VERSION="brew-latest"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
           SUDO=''
-          QT_INSTALL_DIR="C:/Qt"
           EIGEN_INSTALL_DIR="C:/eigen"
-          BOOST_VERSION=1.74.0
+          BOOST_VERSION=1.83.0
           BOOST_INSTALL_DIR="C:/boost"
 
           # vsdevcmd.bat is here: 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/Common7/Tools/vsdevcmd.bat'
@@ -170,7 +168,6 @@ runs:
         fi
 
         echo "SUDO=$SUDO" | tee -a $GITHUB_ENV
-        echo "QT_INSTALL_DIR=$QT_INSTALL_DIR" | tee -a $GITHUB_ENV
         echo "EIGEN_INSTALL_DIR=$EIGEN_INSTALL_DIR" | tee -a $GITHUB_ENV
         echo "BOOST_VERSION=$BOOST_VERSION" | tee -a $GITHUB_ENV
         echo "BOOST_INSTALL_DIR=$BOOST_INSTALL_DIR" | tee -a $GITHUB_ENV
